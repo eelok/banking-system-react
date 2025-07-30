@@ -30,7 +30,7 @@ export async function getListAccountFromJava(): Promise<Account[]> {
     
 
 
-export async function getAccounById(id: number): Promise<Account> {
+export async function getAccounByIdFromTS(id: number): Promise<Account> {
     try{
         const response = await axios.get<Account>(`${TS_API_URL}api/v1/accounts/${id}`);
         return response.data;

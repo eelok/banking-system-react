@@ -1,46 +1,146 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Account } from "../types/Account";
-import { getAccounById } from "../services/AccountService";
+import { getAccounByIdFromJava, getAccounByIdFromTS } from "../services/AccountService";
 
-export default function AccountDetails(){
+type DataFromAccount = {
+    fromJava: {
+        account: Account | null;
+        loading: boolean;
+        error: string | null
+    },
+    fromTS: {
+        account: Account | null;
+        loading: boolean;
+        error: string | null
+    }
+}
+
+export default function AccountDetails() {
+
     const {id} = useParams();
-    const [account, setAccount] = useState<Account | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
 
+    const [data, setData] = useState<DataFromAccount>({
+        fromJava: {
+            account: null,
+            loading: true,
+            error: null
+        },
+        fromTS: {
+            account: null,
+            loading: true,
+            error: null
+        }
+    });
 
     useEffect(() => {
-        setError(null);
-        setLoading(true);
+    
+        const fetchAccountFromTS = async() => {
+            if(!id) {
+                setData((prev) => ({
+                    ...prev,
+                    fromTS: {account: null, loading: true, error: "Account id is not found"}
+                }));
+                return;
+            }
 
-        if(!id){
-            setError("Account ID not found!");
-            setLoading(false);
-            return;
-        }
+            setData((prev) => ({
+                ...prev,
+                fromTS: {account: null, loading: true, error: null}
+            }));
 
-        const fetchAccountById = async (id: number) => {
             try {
-                const account = await getAccounById(id);
-                setAccount(account);
-            } catch(error){
-                setError(String(error));
-            } finally {
-                setLoading(false);
+                let account = await getAccounByIdFromTS(Number(id));
+                setData((prev) => ({
+                    ...prev,
+                    fromTS: {account, loading: false, error: null}
+                }));
+            }catch(error){
+                setData((prev) => ({
+                    ...prev,
+                    fromTS: {account: null, loading: false, error: String(error)}
+                }));
+            }
+        };
+
+        const fetchAccountFromJava = async () => {
+            if(!id){
+                setData((prev) => ({
+                    ...prev,
+                    fromJava: {account: null, loading: true, error: "Account id is not found"}
+                }));
+                return;
+            }
+            try{
+                let account: Account = await getAccounByIdFromJava(Number(id));
+                setData((prev) => ({
+                    ...prev,
+                    fromJava: {account, loading: false, error: null}
+                }));
+            }catch(error){
+                setData((prev) => ({
+                    ...prev,
+                    fromJava: {account: null, loading: false, error: String(error)}
+                }));
             }
         }
 
-        fetchAccountById(Number(id));
+        fetchAccountFromTS();
+        fetchAccountFromJava();
     }, [id]);
+
+    // useEffect(() => {
+    //     setError(null);
+    //     setLoading(true);
+
+    //     if(!id){
+    //         setError("Account ID not found!");
+    //         setLoading(false);
+    //         return;
+    //     }
+
+    //     const fetchAccountById = async (id: number) => {
+    //         try {
+    //             const account = await getAccounByIdFromTS(id);
+    //             setAccount(account);
+    //         } catch(error){
+    //             setError(String(error));
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+
+    //     fetchAccountById(Number(id));
+    // }, [id]);
 
     return(
         <div className="App">
-            <h1>Account Details</h1>
-                <p>{account?.fullName}</p>
-                <p>{account?.iban}</p>
-                <p>{account?.balance} {account?.currency}</p>
-                <p>{account?.withdrawPerDayLimit}</p>
+            {
+                data.fromJava.account &&(
+                    <div>
+                        <h3>Java</h3>
+                        <h3>Account Details:</h3>
+                        <p>{data.fromJava.account?.fullName}</p>
+                        <p>{data.fromJava.account?.iban}</p>
+                        <p>{data.fromJava.account?.balance} {data.fromJava.account?.currency}</p>
+                        <p>{data.fromJava.account?.withdrawPerDayLimit}</p>  
+                    </div>
+                )
+            }
+
+            {
+                data.fromTS.account && (
+                    <div>
+                        <h3>Type Script</h3>
+                        <h3>Account Details</h3>
+                        <p>{data.fromTS.account?.fullName}</p>
+                        <p>{data.fromTS.account?.iban}</p>
+                        <p>{data.fromTS.account?.balance} {data.fromTS.account?.currency}</p>
+                        <p>{data.fromTS.account?.withdrawPerDayLimit}</p> 
+                    </div>
+                )
+
+            }      
         </div>
     )
 }
