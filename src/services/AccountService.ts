@@ -50,7 +50,7 @@ export async function getAccounByIdFromJava(id: number): Promise<Account> {
     }
 }
 
-export async function createAccount(account: Account): Promise<Account> {
+export async function createAccountJava(account: Account): Promise<Account> {
     try {
         const response = await axios.post<Account>(`${JAVA_API_URL}api/v1/accounts`, account);
         return response.data;

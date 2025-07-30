@@ -86,7 +86,8 @@ export default function AccountList() {
 
   return (
     <div className="App">
-      <p>Java backend</p>
+      <p>Java backend:</p>
+      <h3 style={{textAlign: "left", marginLeft: "10px"}}>Account List:</h3>
       <table>
         <thead>
           <tr>
@@ -113,6 +114,7 @@ export default function AccountList() {
       </table>
 
       <p>TypeScript backend</p>
+      <h3 style={{textAlign: "left", marginLeft: "10px"}}>Account List:</h3>
       <table>
         <thead>
           <tr>
