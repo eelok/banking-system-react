@@ -52,7 +52,7 @@ export async function getAccounByIdFromJava(id: number): Promise<Account> {
 
 export async function createAccount(account: Account): Promise<Account> {
     try {
-        const response = await axios.post<Account>('http://localhost:8081/api/v1/accounts', account);
+        const response = await axios.post<Account>(`${JAVA_API_URL}api/v1/accounts`, account);
         return response.data;
     }catch(error){
         console.log(`Error creating the account ${account}` , error);
